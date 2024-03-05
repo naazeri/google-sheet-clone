@@ -13,8 +13,8 @@
             {{ rowNumber }}
           </AxisCell>
           <td v-for="(columnNumber, columnIndex) in columnCount" :key="columnIndex" class="column">
-            <CellItem :cellId="columnIndex + '-' + rowIndex" />
-            <!-- <CellItem :cellId="getCellId(numberToChar(columnIndex), rowNumber)" /> -->
+            <!-- <CellItem :cellId="columnIndex + '-' + rowIndex" /> -->
+            <CellItem :cellId="getCellId(numberToChar(columnIndex), rowNumber)" />
           </td>
         </tr>
       </tbody>
@@ -45,7 +45,7 @@ const numberToChar = (num) => {
   return division - 1 >= 0 ? numberToChar(division - 1) + char : char
 }
 
-// const getCellId = (value1, value2) => `${value1}${value2}`
+const getCellId = (value1, value2) => `${value1}${value2}`
 </script>
 
 <style scoped>

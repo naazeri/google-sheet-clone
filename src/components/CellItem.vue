@@ -17,6 +17,7 @@
 import { computed, ref } from 'vue'
 import { vOnClickOutside } from '@vueuse/components'
 import { useCellsStore } from '@/stores/counter'
+import { extractLetters, increaseAlphabet } from '@/utils'
 
 const props = defineProps(['cellId'])
 // console.log('🚀 ~ props:', props.cellId)
@@ -51,31 +52,46 @@ const onEnterPressed = () => {
 const onInput = (event) => {
   rawValue = event.target.value
 
-  if (rawValue.includes('\t')) {
-    const columnValues = rawValue.split('\t')
-    for (const columnValue of columnValues) {
-      const rowValues = columnValue.split('\n')
-      console.log(`${props.cellId}`)
+  if (rawValue.includes('\t') || rawValue.includes('\n')) {
+    const rowValues = rawValue.split(' ')
+    console.log('🚀 ~ onInput ~ rowValues:', rowValues)
+    const columnLetterNames = []
+    const data = {}
+
+    for (const rowValue of rowValues) {
+      const columnValues = rowValue.split('\t')
+      console.log('🚀 ~ onInput ~ columnValues:', columnValues)
+
+      for (const columnValue of columnValues) {
+        // console.log(`${increaseAlphabet(props.cellId)}`)
+      }
     }
-    console.log(JSON.parse(columnValues))
+    console.log(rowValues)
   } else {
     console.log(rawValue)
   }
 }
 
 const onEditingFinished = () => {
-  let evaluatedResult
+  let evaluatedResult = ''
 
   if (rawValue.startsWith('=')) {
-    const { cellsId, operators } = parseFormula(rawValue.toUpperCase().substring(1))
-    let needEvaluate = ''
+    let formula = rawValue.toUpperCase().substring(1)
+    const cellIds = getCellIds(formula)
 
-    cellsId.forEach((cellId, index) => {
+    for (const cellId of cellIds) {
       const cellValue = cellsStore.getCellData(cellId).evaluatedValue
-      needEvaluate += operators[index] ? `${cellValue}${operators[index]}` : `${cellValue}`
-    })
+      formula = formula.replace(cellId, cellValue)
+      // formula += operators[index] ? `${cellValue}${operators[index]}` : `${cellValue}`
+    }
 
-    evaluatedResult = eval(needEvaluate)
+    // cellIds.forEach((cellId, index) => {
+    //   const cellValue = cellsStore.getCellData(cellId).evaluatedValue
+    //   formula += operators[index] ? `${cellValue}${operators[index]}` : `${cellValue}`
+    // })
+
+    console.log('🚀 ~ onEditingFinished ~ formula:', formula)
+    evaluatedResult = eval(formula)
   } else {
     evaluatedResult = rawValue
   }
@@ -106,18 +122,14 @@ const onEditingFinished = () => {
 //   return result
 // }
 
-function parseFormula(formula) {
+function getCellIds(formula) {
   const cellPattern = /[A-Z]+\d+/g
-  const cellsId = formula.match(cellPattern) || []
+  const matches = formula.match(cellPattern)
 
-  const operators = formula
-    .split(/[A-Z]+\d+/)
-    .filter(Boolean)
-    .map((op) => op.trim())
-
-  return {
-    cellsId,
-    operators
+  if (matches) {
+    return matches
+  } else {
+    return []
   }
 }
 </script>
