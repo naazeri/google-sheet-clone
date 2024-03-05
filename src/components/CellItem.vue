@@ -22,7 +22,6 @@ const props = defineProps(['cellId'])
 // console.log('🚀 ~ props:', props.cellId)
 
 const cellsStore = useCellsStore()
-const { updateCellData } = cellsStore
 
 const isEditMode = ref(false)
 let rawValue = ''
@@ -65,11 +64,10 @@ const onInput = (event) => {
 }
 
 const onEditingFinished = () => {
-  const inputValue = rawValue
   let evaluatedResult
 
-  if (inputValue.startsWith('=')) {
-    const { cellsId, operators } = parseFormula(inputValue.toUpperCase().substring(1))
+  if (rawValue.startsWith('=')) {
+    const { cellsId, operators } = parseFormula(rawValue.toUpperCase().substring(1))
     let needEvaluate = ''
 
     cellsId.forEach((cellId, index) => {
@@ -79,10 +77,12 @@ const onEditingFinished = () => {
 
     evaluatedResult = eval(needEvaluate)
   } else {
-    evaluatedResult = inputValue
+    evaluatedResult = rawValue
   }
 
-  updateCellData(props.cellId, inputValue, evaluatedResult)
+  cellsStore.updateCellData(props.cellId, rawValue, evaluatedResult)
+
+  console.log({ id: props.cellId, rawValue, evaluatedResult })
 }
 
 // const evaluate = (value, operation) => {

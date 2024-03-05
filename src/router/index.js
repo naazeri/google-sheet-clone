@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import MenuView from '../views/MenuView.vue'
+import MenuView from '@/views/MenuView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,13 +12,13 @@ const router = createRouter({
     {
       path: '/wheel',
       name: 'wheel',
-      component: () => import('../views/WheelView.vue')
+      component: () => import('@/views/WheelView.vue')
     },
     {
       path: '/sheets',
       name: 'sheets',
-      // component: () => import('../views/Sheet.vue')
-      component: () => import('../views/SheetsView.vue')
+      // component: () => import('@/views/Sheet.vue')
+      component: () => import('@/views/SheetsView.vue')
     }
   ]
 })

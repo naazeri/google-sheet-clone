@@ -13,7 +13,8 @@
             {{ rowNumber }}
           </AxisCell>
           <td v-for="(columnNumber, columnIndex) in columnCount" :key="columnIndex" class="column">
-            <CellItem :cellId="getCellId(numberToChar(columnIndex), rowNumber)" />
+            <CellItem :cellId="columnIndex + '-' + rowIndex" />
+            <!-- <CellItem :cellId="getCellId(numberToChar(columnIndex), rowNumber)" /> -->
           </td>
         </tr>
       </tbody>
@@ -33,8 +34,8 @@ import AxisCell from '@/components/AxisCell.vue'
 
 // const columnCount = Math.ceil(sheetWidth.value / CELL_WIDTH)
 // const rowCount = Math.ceil(sheetHeight.value / CELL_HEIGHT)
-const columnCount = 30
-const rowCount = 50
+const columnCount = 20
+const rowCount = 20
 
 // todo: this function maybe improve with dictionary
 const numberToChar = (num) => {
@@ -44,7 +45,7 @@ const numberToChar = (num) => {
   return division - 1 >= 0 ? numberToChar(division - 1) + char : char
 }
 
-const getCellId = (value1, value2) => `${value1}${value2}`
+// const getCellId = (value1, value2) => `${value1}${value2}`
 </script>
 
 <style scoped>
