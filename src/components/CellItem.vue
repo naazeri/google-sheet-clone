@@ -17,7 +17,7 @@
 import { computed, ref } from 'vue'
 import { vOnClickOutside } from '@vueuse/components'
 import { useCellsStore } from '@/stores/counter'
-import { extractLetters, increaseAlphabet } from '@/utils'
+import { extractDigits, extractLetters, increaseAlphabet } from '@/utils'
 
 const props = defineProps(['cellId'])
 // console.log('🚀 ~ props:', props.cellId)
@@ -54,19 +54,31 @@ const onInput = (event) => {
 
   if (rawValue.includes('\t') || rawValue.includes('\n')) {
     const rowValues = rawValue.split(' ')
-    console.log('🚀 ~ onInput ~ rowValues:', rowValues)
-    const columnLetterNames = []
+    let lastColumnName = extractLetters(props.cellId)
+    const columnNames = []
     const data = {}
 
-    for (const rowValue of rowValues) {
+    rowValues.forEach((rowValue, rowIndex) => {
       const columnValues = rowValue.split('\t')
       console.log('🚀 ~ onInput ~ columnValues:', columnValues)
 
-      for (const columnValue of columnValues) {
-        // console.log(`${increaseAlphabet(props.cellId)}`)
-      }
-    }
-    console.log(rowValues)
+      columnValues.forEach((columnValue, colIndex) => {
+        // store column letter names just once
+        if (rowIndex === 0) {
+          let columnName
+          if (columnNames.length !== 0) {
+            columnName = increaseAlphabet(lastColumnName)
+          }
+          const rowName = parseInt(extractDigits(props.cellId))
+          columnNames.push(`${columnName}${rowName + rowIndex}`)
+        }
+
+        data[columnNames[colIndex]] = columnValue
+      })
+    })
+
+    console.log('🚀 ~ onInput ~ columnLetterNames:', columnNames)
+    console.log(data)
   } else {
     console.log(rawValue)
   }
