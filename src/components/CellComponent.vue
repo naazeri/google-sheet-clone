@@ -23,8 +23,6 @@ const cellsStore = useCellsStore()
 const isEditMode = ref(false)
 let rawValue = ''
 
-// You can keep your other methods as they are
-
 const onEditingFinished = () => {
   const inputValue = rawValue
   let evaluatedResult
@@ -45,10 +43,4 @@ const onEditingFinished = () => {
 
   cellsStore.updateCellData(props.cellId, inputValue, evaluatedResult)
 }
-
-// Your other methods remain unchanged
 </script>
-
-<style>
-/* Your styles remain unchanged */
-</style>

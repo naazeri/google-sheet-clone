@@ -1,5 +1,6 @@
 <template>
   <div class="sheetContainer">
+    <input type="text" class="activeCellPreview" :value="cellsStore.getSelectedCellData()" />
     <table class="sheetTable">
       <tbody>
         <tr>
@@ -13,7 +14,6 @@
             {{ rowNumber }}
           </AxisCell>
           <td v-for="(columnNumber, columnIndex) in columnCount" :key="columnIndex" class="column">
-            <!-- <CellItem :cellId="columnIndex + '-' + rowIndex" /> -->
             <CellItem :cellId="getCellId(numberToChar(columnIndex), rowNumber)" />
           </td>
         </tr>
@@ -25,6 +25,7 @@
 <script setup>
 import CellItem from '@/components/CellItem.vue'
 import AxisCell from '@/components/AxisCell.vue'
+import { useCellsStore } from '@/stores/cell'
 
 // const sheetWidth = ref(1000)
 // const sheetHeight = ref(2500)
@@ -34,8 +35,9 @@ import AxisCell from '@/components/AxisCell.vue'
 
 // const columnCount = Math.ceil(sheetWidth.value / CELL_WIDTH)
 // const rowCount = Math.ceil(sheetHeight.value / CELL_HEIGHT)
-const columnCount = 20
-const rowCount = 20
+const columnCount = 32
+const rowCount = 400
+const cellsStore = useCellsStore()
 
 // todo: this function maybe improve with dictionary
 const numberToChar = (num) => {
@@ -76,6 +78,6 @@ const getCellId = (value1, value2) => `${value1}${value2}`
   padding: 0;
   margin: 0;
   /* margin: 1px 1px; */
-  border: 3px #e9ac14 solid;
+  border: 2px #777 solid;
 }
 </style>

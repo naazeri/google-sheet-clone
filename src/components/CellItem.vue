@@ -1,5 +1,5 @@
 <template>
-  <input
+  <!-- <input
     v-if="isEditMode"
     @keyup.enter="onEnterPressed"
     class="cellInput"
@@ -7,84 +7,102 @@
     :value="rawValue"
     @input="onInput"
     v-on-click-outside="onCellOutsideClick"
+  /> -->
+  <div
+    contenteditable
+    ref="contentEditable"
+    @input="handleInput"
+    @focusin="handleFocusIn"
+    @focusout="onEditingFinished"
+    @keydown.enter.prevent="onEnterPressed"
+    class="cellLabel"
   />
-  <div v-else @click="onCellClick" class="cellLabel">
-    {{ getEvaluatedValue }}
-  </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
-import { vOnClickOutside } from '@vueuse/components'
-import { useCellsStore } from '@/stores/counter'
+import { computed, ref, watch } from 'vue'
+// import { vOnClickOutside } from '@vueuse/components'
+import { useCellsStore } from '@/stores/cell'
 import { extractDigits, extractLetters, increaseAlphabet } from '@/utils'
 
 const props = defineProps(['cellId'])
-// console.log('🚀 ~ props:', props.cellId)
-
 const cellsStore = useCellsStore()
-
-const isEditMode = ref(false)
+// const isEditMode = ref(false)
+const contentEditable = ref()
 let rawValue = ''
 
 const getEvaluatedValue = computed(() => {
-  if (props.cellId in cellsStore.cellsData2) {
+  if (props.cellId in cellsStore.getCellsData) {
     return cellsStore.cellsData[props.cellId].evaluatedValue
   }
   return ''
 })
 
-const onCellClick = () => {
-  isEditMode.value = true
+watch(getEvaluatedValue, () => {
+  contentEditable.value.innerText = getEvaluatedValue.value
+})
+
+const handleFocusIn = () => {
+  // isEditMode.value = true
   cellsStore.selectedCellId = props.cellId
 }
 
-const onCellOutsideClick = () => {
-  isEditMode.value = false
-  onEditingFinished()
-}
+// const onCellOutsideClick = () => {
+//   isEditMode.value = false
+// onEditingFinished()
+// }
 
 const onEnterPressed = () => {
-  isEditMode.value = false
+  // isEditMode.value = false
   onEditingFinished()
+  contentEditable.value.blur()
 }
 
-const onInput = (event) => {
-  rawValue = event.target.value
+const handleInput = () => {
+  rawValue = contentEditable.value.innerText
+  // console.log(`${props.cellId}: ${rawValue}`)
+  // rawValue = event.target.value
 
-  if (rawValue.includes('\t') || rawValue.includes('\n')) {
-    const rowValues = rawValue.split(' ')
-    let lastColumnName = extractLetters(props.cellId)
+  // equivalent to: rawValue.includes('\t') || rawValue.includes('\n')
+  if (/[\t\n]/.test(rawValue)) {
+    // replace with regex for search one time
+    const rowValues = rawValue.split('\n')
     const columnNames = []
     const data = {}
+    let lastColumnName = extractLetters(props.cellId)
+    const rowNumber = parseInt(extractDigits(props.cellId))
 
     rowValues.forEach((rowValue, rowIndex) => {
       const columnValues = rowValue.split('\t')
-      console.log('🚀 ~ onInput ~ columnValues:', columnValues)
+      // console.log('🚀 ~ onInput ~ columnValues:', columnValues)
 
-      columnValues.forEach((columnValue, colIndex) => {
+      columnValues.forEach((columnValue, columnIndex) => {
         // store column letter names just once
         if (rowIndex === 0) {
-          let columnName
           if (columnNames.length !== 0) {
-            columnName = increaseAlphabet(lastColumnName)
+            lastColumnName = increaseAlphabet(lastColumnName)
           }
-          const rowName = parseInt(extractDigits(props.cellId))
-          columnNames.push(`${columnName}${rowName + rowIndex}`)
+          columnNames.push(lastColumnName)
+
+          if (columnIndex === 0) {
+            rawValue = columnValue
+          }
         }
 
-        data[columnNames[colIndex]] = columnValue
+        data[`${columnNames[columnIndex]}${rowNumber + rowIndex}`] = {
+          rawValue: columnValue,
+          evaluatedValue: columnValue
+        }
       })
     })
 
-    console.log('🚀 ~ onInput ~ columnLetterNames:', columnNames)
-    console.log(data)
-  } else {
-    console.log(rawValue)
+    cellsStore.updateCellsData(data)
+    // console.log(data)
   }
 }
 
 const onEditingFinished = () => {
+  // isEditMode.value = false
   let evaluatedResult = ''
 
   if (rawValue.startsWith('=')) {
@@ -94,7 +112,6 @@ const onEditingFinished = () => {
     for (const cellId of cellIds) {
       const cellValue = cellsStore.getCellData(cellId).evaluatedValue
       formula = formula.replace(cellId, cellValue)
-      // formula += operators[index] ? `${cellValue}${operators[index]}` : `${cellValue}`
     }
 
     // cellIds.forEach((cellId, index) => {
@@ -102,15 +119,14 @@ const onEditingFinished = () => {
     //   formula += operators[index] ? `${cellValue}${operators[index]}` : `${cellValue}`
     // })
 
-    console.log('🚀 ~ onEditingFinished ~ formula:', formula)
+    // console.log('🚀 ~ onEditingFinished ~ formula:', formula)
     evaluatedResult = eval(formula)
   } else {
     evaluatedResult = rawValue
   }
 
   cellsStore.updateCellData(props.cellId, rawValue, evaluatedResult)
-
-  console.log({ id: props.cellId, rawValue, evaluatedResult })
+  // console.log({ id: props.cellId, rawValue, evaluatedResult })
 }
 
 // const evaluate = (value, operation) => {
@@ -167,3 +183,4 @@ function getCellIds(formula) {
   white-space: nowrap;
 }
 </style>
+@/stores/cells

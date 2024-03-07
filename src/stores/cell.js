@@ -10,6 +10,10 @@ export const useCellsStore = defineStore('cells', {
     getCellData(cellId) {
       return this.cellsData[cellId]
     },
+    getSelectedCellData() {
+      const value = this.cellsData[this.selectedCellId]
+      return value ? value.rawValue : ''
+    },
     updateCellData(cellId, rawValue, evaluatedValue) {
       this.cellsData = {
         ...this.cellsData,
@@ -18,10 +22,16 @@ export const useCellsStore = defineStore('cells', {
           evaluatedValue: evaluatedValue
         }
       }
+    },
+    updateCellsData(cellsData) {
+      this.cellsData = {
+        ...this.cellsData,
+        ...cellsData
+      }
     }
   },
 
   getters: {
-    cellsData2: (state) => state.cellsData
+    getCellsData: (state) => state.cellsData
   }
 })
