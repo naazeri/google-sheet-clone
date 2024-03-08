@@ -27,30 +27,21 @@ import { extractDigits, extractLetters, increaseAlphabet } from '@/utils'
 
 const props = defineProps(['cellId'])
 const cellsStore = useCellsStore()
-// const isEditMode = ref(false)
+const isEditMode = ref(false)
 const contentEditable = ref()
-let rawValue = ''
+// let rawValue = ''
 
-const getEvaluatedValue = computed(() => {
-  if (props.cellId in cellsStore.getCellsData) {
-    return cellsStore.cellsData[props.cellId].evaluatedValue
+const getCellData = computed(() => {
+  if (isEditMode.value) {
+    return cellsStore.getCellData(props.cellId).rawValue
   }
-  return ''
+
+  return cellsStore.getCellData(props.cellId).evaluatedValue
 })
 
-watch(getEvaluatedValue, () => {
-  contentEditable.value.innerText = getEvaluatedValue.value
+watch(getCellData, (newValue) => {
+  contentEditable.value.innerText = newValue
 })
-
-const handleFocusIn = () => {
-  // isEditMode.value = true
-  cellsStore.selectedCellId = props.cellId
-}
-
-// const onCellOutsideClick = () => {
-//   isEditMode.value = false
-// onEditingFinished()
-// }
 
 const onEnterPressed = () => {
   // isEditMode.value = false
@@ -59,14 +50,14 @@ const onEnterPressed = () => {
 }
 
 const handleInput = () => {
-  rawValue = contentEditable.value.innerText
+  cellsStore.currentCellRawValue = contentEditable.value.innerText
   // console.log(`${props.cellId}: ${rawValue}`)
   // rawValue = event.target.value
 
   // equivalent to: rawValue.includes('\t') || rawValue.includes('\n')
-  if (/[\t\n]/.test(rawValue)) {
+  if (/[\t\n]/.test(cellsStore.currentCellRawValue)) {
     // replace with regex for search one time
-    const rowValues = rawValue.split('\n')
+    const rowValues = cellsStore.currentCellRawValue.split('\n')
     const columnNames = []
     const data = {}
     let lastColumnName = extractLetters(props.cellId)
@@ -85,7 +76,7 @@ const handleInput = () => {
           columnNames.push(lastColumnName)
 
           if (columnIndex === 0) {
-            rawValue = columnValue
+            cellsStore.currentCellRawValue = columnValue
           }
         }
 
@@ -101,31 +92,45 @@ const handleInput = () => {
   }
 }
 
+const handleFocusIn = () => {
+  isEditMode.value = true
+  cellsStore.updateSelectedCellId(props.cellId)
+}
+
 const onEditingFinished = () => {
-  // isEditMode.value = false
+  isEditMode.value = false
   let evaluatedResult = ''
 
-  if (rawValue.startsWith('=')) {
-    let formula = rawValue.toUpperCase().substring(1)
-    const cellIds = getCellIds(formula)
+  if (cellsStore.currentCellRawValue.startsWith('=')) {
+    try {
+      let formula = cellsStore.currentCellRawValue.toUpperCase().substring(1)
+      const cellIds = getCellIds(formula)
 
-    for (const cellId of cellIds) {
-      const cellValue = cellsStore.getCellData(cellId).evaluatedValue
-      formula = formula.replace(cellId, cellValue)
+      for (const cellId of cellIds) {
+        const cellValue = cellsStore.getCellData(cellId).evaluatedValue
+
+        if (!cellValue) {
+          throw new Error("Cell doesn't exist")
+        }
+
+        formula = formula.replace(cellId, cellValue)
+      }
+
+      // cellIds.forEach((cellId, index) => {
+      //   const cellValue = cellsStore.getCellData(cellId).evaluatedValue
+      //   formula += operators[index] ? `${cellValue}${operators[index]}` : `${cellValue}`
+      // })
+
+      // console.log('🚀 ~ onEditingFinished ~ formula:', formula)
+      evaluatedResult = eval(formula)
+    } catch (error) {
+      evaluatedResult = 'INVALID'
     }
-
-    // cellIds.forEach((cellId, index) => {
-    //   const cellValue = cellsStore.getCellData(cellId).evaluatedValue
-    //   formula += operators[index] ? `${cellValue}${operators[index]}` : `${cellValue}`
-    // })
-
-    // console.log('🚀 ~ onEditingFinished ~ formula:', formula)
-    evaluatedResult = eval(formula)
   } else {
-    evaluatedResult = rawValue
+    evaluatedResult = cellsStore.currentCellRawValue
   }
 
-  cellsStore.updateCellData(props.cellId, rawValue, evaluatedResult)
+  cellsStore.updateCellData(props.cellId, cellsStore.currentCellRawValue, evaluatedResult)
   // console.log({ id: props.cellId, rawValue, evaluatedResult })
 }
 

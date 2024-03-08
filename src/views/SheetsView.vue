@@ -1,6 +1,6 @@
 <template>
   <div class="sheetContainer">
-    <input type="text" class="activeCellPreview" :value="cellsStore.getSelectedCellData()" />
+    <!-- <input type="text" class="activeCellPreview" v-model="cellsStore.currentCellRawValue" /> -->
     <table class="sheetTable">
       <tbody>
         <tr>
@@ -25,7 +25,7 @@
 <script setup>
 import CellItem from '@/components/CellItem.vue'
 import AxisCell from '@/components/AxisCell.vue'
-import { useCellsStore } from '@/stores/cell'
+// import { useCellsStore } from '@/stores/cell'
 
 // const sheetWidth = ref(1000)
 // const sheetHeight = ref(2500)
@@ -36,8 +36,8 @@ import { useCellsStore } from '@/stores/cell'
 // const columnCount = Math.ceil(sheetWidth.value / CELL_WIDTH)
 // const rowCount = Math.ceil(sheetHeight.value / CELL_HEIGHT)
 const columnCount = 32
-const rowCount = 400
-const cellsStore = useCellsStore()
+const rowCount = 100
+// const cellsStore = useCellsStore()
 
 // todo: this function maybe improve with dictionary
 const numberToChar = (num) => {
@@ -48,6 +48,10 @@ const numberToChar = (num) => {
 }
 
 const getCellId = (value1, value2) => `${value1}${value2}`
+
+// const onInputPreviewEnterPressed = () => {
+//   console.log(cellsStore.currentCellRawValue)
+// }
 </script>
 
 <style scoped>

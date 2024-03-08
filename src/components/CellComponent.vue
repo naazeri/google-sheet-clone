@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { vOnClickOutside } from '@vueuse/components'
 import { useCellsStore } from '@/stores/counter'
 
