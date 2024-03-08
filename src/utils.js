@@ -43,17 +43,17 @@ export function extractDigits(str) {
   return str.replace(/^\D+/g, '')
 }
 
-// function parseFormula(formula) {
-//   const cellPattern = /[A-Z]+\d+/g
-//   const cellsId = formula.match(cellPattern) || []
+export function extractCellIds(str) {
+  const cellPattern = /[A-Z]+\d+/g
+  const cellIds = str.match(cellPattern) || []
+  return cellIds
+  // const operators = str
+  //   .split(/[A-Z]+\d+/)
+  //   .filter(Boolean)
+  //   .map((op) => op.trim())
 
-//   const operators = formula
-//     .split(/[A-Z]+\d+/)
-//     .filter(Boolean)
-//     .map((op) => op.trim())
-
-//   return {
-//     cellsId,
-//     operators
-//   }
-// }
+  // return {
+  //   cellsId,
+  //   operators
+  // }
+}

@@ -23,7 +23,7 @@
 import { computed, ref, watch } from 'vue'
 // import { vOnClickOutside } from '@vueuse/components'
 import { useCellsStore } from '@/stores/cell'
-import { extractDigits, extractLetters, increaseAlphabet } from '@/utils'
+import { extractCellIds, extractDigits, extractLetters, increaseAlphabet } from '@/utils'
 
 const props = defineProps(['cellId'])
 const cellsStore = useCellsStore()
@@ -42,6 +42,31 @@ const getCellData = computed(() => {
 watch(getCellData, (newValue) => {
   contentEditable.value.innerText = newValue
 })
+
+cellsStore.$onAction(
+  ({
+    name, // name of the action
+    store, // store instance
+    args, // array of parameters passed to the actio
+    after // hook after the action returns or resolves
+  }) => {
+    if (store.$id === 'cells' && name === 'updateCellData' && args[0] !== props.cellId) {
+      const rawValue = cellsStore.getCellData(props.cellId).rawValue
+
+      if (rawValue.startsWith('=')) {
+        after(() => {
+          const cellIds = extractCellIds(rawValue)
+          cellIds.forEach((cellId) => {
+            if (cellId === args[0]) {
+              const result = calculateFormula(rawValue)
+              cellsStore.updateCellData(props.cellId, result.rawResult, result.evaluatedResult)
+            }
+          })
+        })
+      }
+    }
+  }
+)
 
 const onEnterPressed = () => {
   // isEditMode.value = false
@@ -99,39 +124,55 @@ const handleFocusIn = () => {
 
 const onEditingFinished = () => {
   isEditMode.value = false
-  let evaluatedResult = ''
+  let result = {
+    rawResult: undefined,
+    evaluatedResult: undefined
+  }
+  const currentCellRawValue = cellsStore.currentCellRawValue
+  // console.log(`${props.cellId}: ${currentCellRawValue}`)
 
-  if (cellsStore.currentCellRawValue.startsWith('=')) {
-    try {
-      let formula = cellsStore.currentCellRawValue.toUpperCase().substring(1)
-      const cellIds = getCellIds(formula)
-
-      for (const cellId of cellIds) {
-        const cellValue = cellsStore.getCellData(cellId).evaluatedValue
-
-        if (!cellValue) {
-          throw new Error("Cell doesn't exist")
-        }
-
-        formula = formula.replace(cellId, cellValue)
-      }
-
-      // cellIds.forEach((cellId, index) => {
-      //   const cellValue = cellsStore.getCellData(cellId).evaluatedValue
-      //   formula += operators[index] ? `${cellValue}${operators[index]}` : `${cellValue}`
-      // })
-
-      // console.log('🚀 ~ onEditingFinished ~ formula:', formula)
-      evaluatedResult = eval(formula)
-    } catch (error) {
-      evaluatedResult = 'INVALID'
-    }
+  if (currentCellRawValue.startsWith('=')) {
+    result = calculateFormula(currentCellRawValue.toUpperCase())
   } else {
-    evaluatedResult = cellsStore.currentCellRawValue
+    result.rawResult = currentCellRawValue
+    result.evaluatedResult = currentCellRawValue
   }
 
-  cellsStore.updateCellData(props.cellId, cellsStore.currentCellRawValue, evaluatedResult)
+  cellsStore.updateCellData(props.cellId, result.rawResult, result.evaluatedResult)
   // console.log({ id: props.cellId, rawValue, evaluatedResult })
+}
+
+const calculateFormula = (formula) => {
+  let rawResult = ''
+  let evaluatedResult = ''
+
+  try {
+    rawResult = formula
+    formula = rawResult.substring(1)
+    const cellIds = getCellIds(formula)
+
+    for (const cellId of cellIds) {
+      const cellValue = cellsStore.getCellData(cellId).evaluatedValue
+
+      if (!cellValue) {
+        throw new Error("Cell doesn't exist")
+      }
+
+      formula = formula.replace(cellId, cellValue)
+    }
+
+    // cellIds.forEach((cellId, index) => {
+    //   const cellValue = cellsStore.getCellData(cellId).evaluatedValue
+    //   formula += operators[index] ? `${cellValue}${operators[index]}` : `${cellValue}`
+    // })
+
+    // console.log('🚀 ~ onEditingFinished ~ formula:', formula)
+    evaluatedResult = eval(formula)
+  } catch (error) {
+    evaluatedResult = 'INVALID'
+  }
+
+  return { rawResult, evaluatedResult }
 }
 
 // const evaluate = (value, operation) => {
