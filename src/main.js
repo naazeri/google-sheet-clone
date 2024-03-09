@@ -5,12 +5,19 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
-// import ClickOutside from './directives/ClickOutsideDirective'
+
+// Vuetify
+// import 'vuetify/styles'
+// import { createVuetify } from 'vuetify'
+// import * as components from 'vuetify/components'
+// import * as directives from 'vuetify/directives'
+import vuetify from '@/plugins/vuetify'
+// const vuetify = createVuetify()
 
 const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
-// app.directive('click-outside', ClickOutside)
+app.use(vuetify)
 
 app.mount('#app')

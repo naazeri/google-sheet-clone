@@ -11,14 +11,23 @@ const router = createRouter({
     },
     {
       path: '/wheel',
-      name: 'wheel',
-      component: () => import('@/views/WheelView.vue')
+      name: 'wheelView',
+      component: () => import('@/views/wheel/WheelView.vue')
+    },
+    {
+      path: '/wheel/manage',
+      name: 'wheelManage',
+      component: () => import('@/views/wheel/ManageItems.vue')
     },
     {
       path: '/sheets',
       name: 'sheets',
-      // component: () => import('@/views/Sheet.vue')
-      component: () => import('@/views/SheetsView.vue')
+      component: () => import('@/views/sheet/SheetsView.vue')
+    },
+    {
+      path: '/:catchall(.*)*',
+      name: 'not found',
+      component: () => import('@/views/error/NotFoundView.vue')
     }
   ]
 })
