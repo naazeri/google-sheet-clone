@@ -12,10 +12,11 @@
   },
   "dependencies": {
     "@vueuse/components": "^10.7.2",
-    "gsap": "^3.12.5",
+    "animejs": "^3.2.2",
     "pinia": "^2.1.7",
     "vite-plugin-vuetify": "^2.0.2",
     "vue": "^3.4.15",
+    "vue-fortune-wheel": "^2.1.0",
     "vue-router": "^4.2.5",
     "vuetify": "^3.5.8"
   },
