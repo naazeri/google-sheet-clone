@@ -5,15 +5,19 @@
       <tbody>
         <tr>
           <th></th>
-          <AxisCell v-for="(item, index) in columnCount" :key="index">
+          <AxisCell v-for="(item, index) in cellsStore.columnCount" :key="index">
             {{ numberToChar(index) }}
           </AxisCell>
         </tr>
-        <tr v-for="(rowNumber, rowIndex) in rowCount" :key="rowIndex">
+        <tr v-for="(rowNumber, rowIndex) in cellsStore.rowCount" :key="rowIndex">
           <AxisCell>
             {{ rowNumber }}
           </AxisCell>
-          <td v-for="(columnNumber, columnIndex) in columnCount" :key="columnIndex" class="column">
+          <td
+            v-for="(columnNumber, columnIndex) in cellsStore.columnCount"
+            :key="columnIndex"
+            class="column"
+          >
             <CellItem :cellId="getCellId(numberToChar(columnIndex), rowNumber)" />
           </td>
         </tr>
@@ -25,21 +29,13 @@
 <script setup>
 import CellItem from '@/components/CellItem.vue'
 import AxisCell from '@/components/AxisCell.vue'
-// import { useCellsStore } from '@/stores/cell'
+import { useCellsStore } from '@/stores/cell'
+// import 'vuetify/styles'
 
-// const sheetWidth = ref(1000)
-// const sheetHeight = ref(2500)
+const cellsStore = useCellsStore()
+// const columnCount = ref(26)
+// const rowCount = ref(50)
 
-// const CELL_WIDTH = 100
-// const CELL_HEIGHT = 25
-
-// const columnCount = Math.ceil(sheetWidth.value / CELL_WIDTH)
-// const rowCount = Math.ceil(sheetHeight.value / CELL_HEIGHT)
-const columnCount = 32
-const rowCount = 100
-// const cellsStore = useCellsStore()
-
-// todo: this function maybe improve with dictionary
 const numberToChar = (num) => {
   const division = Math.floor(num / 26)
   const reminder = Math.floor(num % 26)
@@ -48,10 +44,6 @@ const numberToChar = (num) => {
 }
 
 const getCellId = (value1, value2) => `${value1}${value2}`
-
-// const onInputPreviewEnterPressed = () => {
-//   console.log(cellsStore.currentCellRawValue)
-// }
 </script>
 
 <style scoped>

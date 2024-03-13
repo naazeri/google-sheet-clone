@@ -1,6 +1,6 @@
 {
-  "name": "excel-wheel",
-  "version": "0.0.0",
+  "name": "vitrin-excel",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
   "scripts": {
