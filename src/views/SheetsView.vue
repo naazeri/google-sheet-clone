@@ -56,7 +56,7 @@ const getCellId = (value1, value2) => `${value1}${value2}`
 
 .column {
   min-width: 100px;
-  max-width: 100px;
+  max-width: 300px;
   height: 25px;
   border: 1px solid #777;
 }

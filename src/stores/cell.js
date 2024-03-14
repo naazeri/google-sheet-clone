@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
 
-const MAX_TOTAL_CELLS = 11000
+const MAX_TOTAL_CELLS = 13000
 
 export const useCellsStore = defineStore('cells', {
   state: () => ({
-    columnCount: 100,
-    rowCount: 80,
+    columnCount: 26,
+    rowCount: 50,
     cellsData: {},
     selectedCellId: '',
     currentCellRawValue: '',
@@ -51,8 +51,13 @@ export const useCellsStore = defineStore('cells', {
 
       const totalCells = (this.columnCount + addColumnCount) * (this.rowCount + addRowCount)
       if (totalCells < MAX_TOTAL_CELLS) {
-        this.columnCount += addColumnCount
-        this.rowCount += addRowCount
+        if (addColumnCount > 0) {
+          this.columnCount += addColumnCount
+        }
+
+        if (addRowCount > 0) {
+          this.rowCount += addRowCount
+        }
       } else {
         alert('به حداکثر میزان تعداد سلول رسیدید. بیش از این امکان ایجاد سلول جدید وجود ندارد 🥲')
         return false

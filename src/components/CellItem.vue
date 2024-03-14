@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 // import { vOnClickOutside } from '@vueuse/components'
 import { useCellsStore } from '@/stores/cell'
 import {
@@ -27,6 +27,10 @@ const cellsStore = useCellsStore()
 const isEditMode = ref(false)
 const contentEditable = ref()
 // let rawValue = ''
+
+onMounted(() => {
+  contentEditable.value.innerText = cellsStore.getCellData(props.cellId).rawValue
+})
 
 const getCellData = computed(() => {
   if (isEditMode.value) {
@@ -87,6 +91,10 @@ const handleInput = () => {
     const data = {}
     let lastColumnName = extractLetters(props.cellId)
     const rowNumber = parseInt(extractDigits(props.cellId))
+
+    const rowCount = rowValues.length
+    const columnCount = rowValues[0].split('\t').length
+    checkHaveSize(columnCount, rowCount)
 
     rowValues.forEach((rowValue, rowIndex) => {
       const columnValues = rowValue.split('\t')
@@ -171,6 +179,23 @@ const calculateFormula = (formula) => {
   }
 
   return { rawResult, evaluatedResult }
+}
+
+function checkHaveSize(columnCount, rowCount) {
+  let expandedColumnCount = 0
+  let expandedRowCount = 0
+
+  if (columnCount > cellsStore.columnCount) {
+    expandedColumnCount = columnCount - cellsStore.columnCount
+  }
+
+  if (rowCount > cellsStore.rowCount) {
+    expandedRowCount = rowCount - cellsStore.rowCount
+  }
+
+  if (expandedColumnCount || expandedRowCount) {
+    cellsStore.addCellsCount(expandedColumnCount, expandedRowCount)
+  }
 }
 
 function checkNeedResize() {
