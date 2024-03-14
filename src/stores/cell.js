@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-const MAX_TOTAL_CELLS = 13000
+const MAX_TOTAL_CELLS = 16000
 
 export const useCellsStore = defineStore('cells', {
   state: () => ({

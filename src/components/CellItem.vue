@@ -172,7 +172,8 @@ const calculateFormula = (formula) => {
     //   formula += operators[index] ? `${cellValue}${operators[index]}` : `${cellValue}`
     // })
 
-    // console.log('🚀 ~ onEditingFinished ~ formula:', formula)
+    formula = formula.replaceAll('--', '+')
+    console.log('🚀 ~ onEditingFinished ~ formula:', formula)
     evaluatedResult = eval(formula)
   } catch (error) {
     evaluatedResult = 'INVALID'
