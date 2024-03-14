@@ -4,8 +4,8 @@ const MAX_TOTAL_CELLS = 11000
 
 export const useCellsStore = defineStore('cells', {
   state: () => ({
-    columnCount: 26,
-    rowCount: 50,
+    columnCount: 100,
+    rowCount: 80,
     cellsData: {},
     selectedCellId: '',
     currentCellRawValue: '',
@@ -44,15 +44,21 @@ export const useCellsStore = defineStore('cells', {
       }
     },
 
-    addColumns(count) {
-      if (count < 1) {
-        return
+    addCellsCount(addColumnCount, addRowCount) {
+      if (addColumnCount < 0 || addRowCount < 0) {
+        return false
       }
 
-      const totalCells = (this.columnCount + count) * this.rowCount
+      const totalCells = (this.columnCount + addColumnCount) * (this.rowCount + addRowCount)
       if (totalCells < MAX_TOTAL_CELLS) {
-        this.columnCount += count
+        this.columnCount += addColumnCount
+        this.rowCount += addRowCount
+      } else {
+        alert('به حداکثر میزان تعداد سلول رسیدید. بیش از این امکان ایجاد سلول جدید وجود ندارد 🥲')
+        return false
       }
+
+      return true
     }
   },
 

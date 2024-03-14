@@ -1,13 +1,4 @@
 <template>
-  <!-- <input
-    v-if="isEditMode"
-    @keyup.enter="onEnterPressed"
-    class="cellInput"
-    type="text"
-    :value="rawValue"
-    @input="onInput"
-    v-on-click-outside="onCellOutsideClick"
-  /> -->
   <div
     contenteditable
     ref="contentEditable"
@@ -23,7 +14,13 @@
 import { computed, ref, watch } from 'vue'
 // import { vOnClickOutside } from '@vueuse/components'
 import { useCellsStore } from '@/stores/cell'
-import { extractCellIds, extractDigits, extractLetters, increaseAlphabet } from '@/utils'
+import {
+  extractCellIds,
+  extractDigits,
+  extractLetters,
+  increaseAlphabet,
+  lettersToNumber
+} from '@/utils'
 
 const props = defineProps(['cellId'])
 const cellsStore = useCellsStore()
@@ -51,13 +48,16 @@ cellsStore.$onAction(
     after // hook after the action returns or resolves
   }) => {
     if (store.$id === 'cells' && name === 'updateCellData' && args[0] !== props.cellId) {
+      // get self rawValue
       const rawValue = cellsStore.getCellData(props.cellId).rawValue
 
       if (rawValue.startsWith('=')) {
+        // cell have formula
         after(() => {
           const cellIds = extractCellIds(rawValue)
           cellIds.forEach((cellId) => {
             if (cellId === args[0]) {
+              // updated cell data used in formula. so formula need update
               const result = calculateFormula(rawValue)
               cellsStore.updateCellData(props.cellId, result.rawResult, result.evaluatedResult)
             }
@@ -76,11 +76,11 @@ const onEnterPressed = () => {
 
 const handleInput = () => {
   cellsStore.currentCellRawValue = contentEditable.value.innerText
-  // console.log(`${props.cellId}: ${rawValue}`)
-  // rawValue = event.target.value
 
   // equivalent to: rawValue.includes('\t') || rawValue.includes('\n')
   if (/[\t\n]/.test(cellsStore.currentCellRawValue)) {
+    // pasted data from Sheets
+
     // replace with regex for search one time
     const rowValues = cellsStore.currentCellRawValue.split('\n')
     const columnNames = []
@@ -90,7 +90,6 @@ const handleInput = () => {
 
     rowValues.forEach((rowValue, rowIndex) => {
       const columnValues = rowValue.split('\t')
-      // console.log('🚀 ~ onInput ~ columnValues:', columnValues)
 
       columnValues.forEach((columnValue, columnIndex) => {
         // store column letter names just once
@@ -113,7 +112,6 @@ const handleInput = () => {
     })
 
     cellsStore.updateCellsData(data)
-    // console.log(data)
   }
 }
 
@@ -139,7 +137,7 @@ const onEditingFinished = () => {
   }
 
   cellsStore.updateCellData(props.cellId, result.rawResult, result.evaluatedResult)
-  // console.log({ id: props.cellId, rawValue, evaluatedResult })
+  checkNeedResize()
 }
 
 const calculateFormula = (formula) => {
@@ -149,7 +147,7 @@ const calculateFormula = (formula) => {
   try {
     rawResult = formula
     formula = rawResult.substring(1)
-    const cellIds = getCellIds(formula)
+    const cellIds = extractCellIds(formula)
 
     for (const cellId of cellIds) {
       const cellValue = cellsStore.getCellData(cellId).evaluatedValue
@@ -175,6 +173,24 @@ const calculateFormula = (formula) => {
   return { rawResult, evaluatedResult }
 }
 
+function checkNeedResize() {
+  const columnName = extractLetters(props.cellId)
+  const columnNumber = lettersToNumber(columnName)
+  const rowNumber = parseInt(extractDigits(props.cellId))
+  let expandedColumnCount = false
+  let expandedRowCount = false
+
+  if (columnNumber + 10 > cellsStore.columnCount) {
+    expandedColumnCount = true
+  }
+
+  if (rowNumber + 10 > cellsStore.rowCount) {
+    expandedRowCount = true
+  }
+
+  cellsStore.addCellsCount(expandedColumnCount ? 10 : 0, expandedRowCount ? 10 : 0)
+}
+
 // const evaluate = (value, operation) => {
 //   for (let i = 1; i < value.length; i++) {
 //     const char = value[i]
@@ -195,17 +211,6 @@ const calculateFormula = (formula) => {
 
 //   return result
 // }
-
-function getCellIds(formula) {
-  const cellPattern = /[A-Z]+\d+/g
-  const matches = formula.match(cellPattern)
-
-  if (matches) {
-    return matches
-  } else {
-    return []
-  }
-}
 </script>
 
 <style>
@@ -229,4 +234,3 @@ function getCellIds(formula) {
   white-space: nowrap;
 }
 </style>
-@/stores/cells

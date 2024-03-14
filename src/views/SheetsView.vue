@@ -6,7 +6,7 @@
         <tr>
           <th></th>
           <AxisCell v-for="(item, index) in cellsStore.columnCount" :key="index">
-            {{ numberToChar(index) }}
+            {{ numberToLetters(index) }}
           </AxisCell>
         </tr>
         <tr v-for="(rowNumber, rowIndex) in cellsStore.rowCount" :key="rowIndex">
@@ -18,7 +18,7 @@
             :key="columnIndex"
             class="column"
           >
-            <CellItem :cellId="getCellId(numberToChar(columnIndex), rowNumber)" />
+            <CellItem :cellId="getCellId(numberToLetters(columnIndex), rowNumber)" />
           </td>
         </tr>
       </tbody>
@@ -30,18 +30,12 @@
 import CellItem from '@/components/CellItem.vue'
 import AxisCell from '@/components/AxisCell.vue'
 import { useCellsStore } from '@/stores/cell'
+import { numberToLetters } from '@/utils'
 // import 'vuetify/styles'
 
 const cellsStore = useCellsStore()
 // const columnCount = ref(26)
 // const rowCount = ref(50)
-
-const numberToChar = (num) => {
-  const division = Math.floor(num / 26)
-  const reminder = Math.floor(num % 26)
-  const char = String.fromCharCode(reminder + 97).toUpperCase()
-  return division - 1 >= 0 ? numberToChar(division - 1) + char : char
-}
 
 const getCellId = (value1, value2) => `${value1}${value2}`
 </script>
