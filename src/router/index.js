@@ -10,6 +10,11 @@ const router = createRouter({
       component: SheetsView
     },
     {
+      path: '/google-sheet-clone',
+      name: 'home2',
+      component: SheetsView
+    },
+    {
       path: '/:catchall(.*)*',
       name: 'not found',
       component: () => import('@/views/error/NotFoundView.vue')
