@@ -1,1 +1,0 @@
-import{_ as e,c,o as t,p as s,a,b as _}from"./index-B-ip3xNN.js";const n={},d=o=>(s("data-v-76bc3156"),o=o(),a(),o),r={class:"container"},p=d(()=>_("h1",null,"404 Not Found",-1)),i=[p];function h(o,l){return t(),c("div",r,i)}const f=e(n,[["render",h],["__scopeId","data-v-76bc3156"]]);export{f as default};

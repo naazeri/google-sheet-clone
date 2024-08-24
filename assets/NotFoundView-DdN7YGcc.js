@@ -1,0 +1,1 @@
+import{_ as o,c as t,o as c,p as s,a,b as d}from"./index-DrTRRTle.js";const _={},n=e=>(s("data-v-0f3a50ed"),e=e(),a(),e),r={class:"container"},p=n(()=>d("h1",null,"404 Not Found",-1)),i=[p];function f(e,h){return c(),t("div",r,i)}const u=o(_,[["render",f],["__scopeId","data-v-0f3a50ed"]]);export{u as default};
